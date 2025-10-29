@@ -1,19 +1,14 @@
-FROM node:16.19.0-slim
+FROM python:3.11-slim
 
-# Create app directory
-WORKDIR /usr/src/app
+RUN apt-get update && apt-get install -y \
+    portaudio19-dev ffmpeg build-essential \
+ && rm -rf /var/lib/apt/lists/*
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+WORKDIR /app
+COPY . /app
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-# Bundle app source
-COPY . .
-
-EXPOSE 8080
-CMD [ "npm", "start" ]
+EXPOSE 8501
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
